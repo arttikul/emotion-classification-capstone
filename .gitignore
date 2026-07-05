@@ -1,0 +1,8 @@
+data/emotion-dataset.csv
+data/train.csv
+data/val.csv
+data/test.csv
+artifacts/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
