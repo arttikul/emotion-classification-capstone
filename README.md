@@ -53,7 +53,8 @@ emotion-classification-capstone/
 │   ├── train_baseline.py        # TF-IDF + LogisticRegression
 │   ├── train_lstm.py            # цикл навчання BiLSTM
 │   ├── train_transformer.py     # fine-tuning DistilBERT (HF Trainer)
-│   └── viz.py                   # графіки confusion matrix / кривих навчання
+│   ├── viz.py                   # графіки confusion matrix / кривих навчання
+│   └── app.py                   # Gradio-демо для ручної перевірки моделей
 └── artifacts/                   # збережені моделі + метрики (генеруються під час запуску)
 ```
 
@@ -82,6 +83,24 @@ python src/train_transformer.py --csv_path data/emotion-dataset.csv --epochs 2
 ```
 Для останніх двох кроків настійно рекомендується GPU; fine-tuning DistilBERT
 на повному датасеті лише на CPU практично неможливий.
+
+## UI для перевірки моделей
+
+`src/app.py` — Gradio-демо для ручного тестування: вводиш речення
+англійською, обираєш модель (радіо-кнопки), отримуєш розподіл ймовірностей
+за всіма 6 класами. Демо автоматично визначає, які моделі вже натреновані —
+шукає відповідні файли в `artifacts/baseline`, `artifacts/lstm`,
+`artifacts/transformer/final_model` — і показує в списку лише доступні.
+
+```bash
+pip install -r requirements.txt
+python src/app.py
+```
+
+Перед першим запуском потрібно мати хоча б одну натреновану модель у
+`artifacts/` — або натренуй локально (`python src/train_baseline.py` тощо),
+або скопіюй папку `artifacts/`, згенеровану ноутбуком у Colab, у корінь
+цього репозиторію.
 
 ## Результати
 

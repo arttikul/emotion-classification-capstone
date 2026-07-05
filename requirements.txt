@@ -8,3 +8,4 @@ transformers>=4.35
 datasets>=2.15
 accelerate>=0.25
 joblib>=1.3
+gradio>=4.0

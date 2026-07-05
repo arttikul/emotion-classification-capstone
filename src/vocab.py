@@ -28,6 +28,16 @@ class Vocab:
         self.pad_id = self.stoi[PAD_TOKEN]
         self.unk_id = self.stoi[UNK_TOKEN]
 
+    @classmethod
+    def from_itos(cls, itos):
+        """Rebuild a Vocab from a saved itos list (skips re-counting frequencies)."""
+        obj = cls.__new__(cls)
+        obj.itos = itos
+        obj.stoi = {w: i for i, w in enumerate(itos)}
+        obj.pad_id = obj.stoi[PAD_TOKEN]
+        obj.unk_id = obj.stoi[UNK_TOKEN]
+        return obj
+
     def __len__(self):
         return len(self.itos)
 
