@@ -16,7 +16,7 @@ import gradio as gr
 import torch
 
 from data import ID2LABEL, LABEL_NAMES, clean_text
-from models import BiLSTMClassifier
+from models import BiLSTMClassifier, get_device
 from vocab import Vocab
 
 ARTIFACTS_DIR = os.path.join(os.path.dirname(__file__), "..", "artifacts")
@@ -55,6 +55,7 @@ def _load_lstm():
         itos = json.load(f)
     vocab = Vocab.from_itos(itos)
 
+    device = get_device()
     model = BiLSTMClassifier(
         vocab_size=len(vocab), num_classes=len(LABEL_NAMES), pad_idx=vocab.pad_id
     )
@@ -62,16 +63,17 @@ def _load_lstm():
         os.path.join(lstm_dir, "bilstm_model.pt"), map_location="cpu"
     )
     model.load_state_dict(state_dict)
+    model.to(device)
     model.eval()
 
     def predict(text):
         cleaned = clean_text(text)
         ids = vocab.encode(cleaned, LSTM_MAX_LEN)
         length = min(len(cleaned.split()), LSTM_MAX_LEN) or 1
-        ids_t = torch.tensor([ids], dtype=torch.long)
-        length_t = torch.tensor([length], dtype=torch.long)
+        ids_t = torch.tensor([ids], dtype=torch.long, device=device)
+        length_t = torch.tensor([length], dtype=torch.long, device=device)
         with torch.no_grad():
-            probs = torch.softmax(model(ids_t, length_t), dim=1)[0].numpy()
+            probs = torch.softmax(model(ids_t, length_t), dim=1)[0].cpu().numpy()
         return {ID2LABEL[i]: float(p) for i, p in enumerate(probs)}
 
     return predict
@@ -80,9 +82,11 @@ def _load_lstm():
 def _load_transformer():
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
+    device = get_device()
     model_dir = os.path.join(ARTIFACTS_DIR, "transformer", "final_model")
     tokenizer = AutoTokenizer.from_pretrained(model_dir)
     model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+    model.to(device)
     model.eval()
 
     def predict(text):
@@ -91,9 +95,9 @@ def _load_transformer():
             truncation=True,
             max_length=TRANSFORMER_MAX_LEN,
             return_tensors="pt",
-        )
+        ).to(device)
         with torch.no_grad():
-            probs = torch.softmax(model(**inputs).logits, dim=1)[0].numpy()
+            probs = torch.softmax(model(**inputs).logits, dim=1)[0].cpu().numpy()
         return {ID2LABEL[i]: float(p) for i, p in enumerate(probs)}
 
     return predict

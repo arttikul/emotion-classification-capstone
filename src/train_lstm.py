@@ -17,7 +17,7 @@ from sklearn.metrics import classification_report, confusion_matrix, f1_score, a
 
 from data import LABEL_NAMES, load_emotion_data, split_data
 from vocab import Vocab
-from models import BiLSTMClassifier
+from models import BiLSTMClassifier, get_device
 
 
 class EmotionDataset(Dataset):
@@ -61,7 +61,7 @@ def evaluate(model, loader, device, criterion):
 
 def run(csv_path, sample_frac, epochs, batch_size, max_len, lr, out_dir):
     os.makedirs(out_dir, exist_ok=True)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = get_device()
     print(f"Using device: {device}")
 
     df = load_emotion_data(csv_path, sample_frac=sample_frac)

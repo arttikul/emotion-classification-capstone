@@ -82,7 +82,10 @@ python src/train_lstm.py --csv_path data/emotion-dataset.csv --epochs 6
 python src/train_transformer.py --csv_path data/emotion-dataset.csv --epochs 2
 ```
 Для останніх двох кроків настійно рекомендується GPU; fine-tuning DistilBERT
-на повному датасеті лише на CPU практично неможливий.
+на повному датасеті лише на CPU практично неможливий. На Apple Silicon
+(M1/M2/M3/...) `train_lstm.py` і `src/app.py` автоматично використовують GPU
+через Metal (MPS backend), якщо CUDA недоступна — окремих налаштувань не
+потрібно.
 
 ## UI для перевірки моделей
 

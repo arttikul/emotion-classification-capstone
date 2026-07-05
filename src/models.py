@@ -9,6 +9,15 @@ import torch
 import torch.nn as nn
 
 
+def get_device() -> torch.device:
+    """Best available device: CUDA > Apple Silicon (MPS) > CPU."""
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    return torch.device("cpu")
+
+
 class BiLSTMClassifier(nn.Module):
     def __init__(
         self,
